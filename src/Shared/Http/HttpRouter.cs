@@ -21,16 +21,13 @@ public class HttpRouter
 		routes = [];
 	}
 
-	// <-- Rest of the code below goes here.
-
 	public HttpRouter Use(params HttpMiddleware[] middlewares)
 	{
 		this.middlewares.AddRange(middlewares);
 		return this;
 	}
 
-	public HttpRouter Map(string method, string path,
-		params HttpMiddleware[] middlewares)
+	public HttpRouter Map(string method, string path, params HttpMiddleware[] middlewares)
 	{
 		routes.Add((method.ToUpperInvariant(), path, middlewares));
 
@@ -81,11 +78,9 @@ public class HttpRouter
 		}
 	}
 
-	private async Task HandleAsync(HttpListenerRequest req,
-		HttpListenerResponse res, Hashtable props, Func<Task> next)
+	private async Task HandleAsync(HttpListenerRequest req, HttpListenerResponse res, Hashtable props, Func<Task> next)
 	{
-		Func<Task> globalMiddlewarePipeline =
-			GenerateMiddlewarePipeline(req, res, props, middlewares);
+		Func<Task> globalMiddlewarePipeline = GenerateMiddlewarePipeline(req, res, props, middlewares);
 
 		await globalMiddlewarePipeline();
 		await next();
@@ -97,8 +92,7 @@ public class HttpRouter
 		return Use(router.HandleAsync);
 	}
 
-	private Func<Task> GenerateMiddlewarePipeline(HttpListenerRequest req,
-		HttpListenerResponse res, Hashtable props, List<HttpMiddleware> middlewares)
+	private Func<Task> GenerateMiddlewarePipeline(HttpListenerRequest req, HttpListenerResponse res, Hashtable props, List<HttpMiddleware> middlewares)
 	{
 		int index = -1;
 		Func<Task> next = () => Task.CompletedTask;
@@ -124,16 +118,13 @@ public class HttpRouter
 		return Use(ParametrizedRouteMatching);
 	}
 
-	private async Task SimpleRouteMatching(HttpListenerRequest req,
-		HttpListenerResponse res, Hashtable props, Func<Task> next)
+	private async Task SimpleRouteMatching(HttpListenerRequest req, HttpListenerResponse res, Hashtable props, Func<Task> next)
 	{
 		foreach (var (method, path, middlewares) in routes)
 		{
-			if (req.HttpMethod == method &&
-				string.Equals(req.Url!.AbsolutePath, basePath + path)) // *
+			if (req.HttpMethod == method && req.Url!.AbsolutePath == basePath + path) // *
 			{
-				Func<Task> routeMiddlewarePipeline =
-					GenerateMiddlewarePipeline(req, res, props, middlewares.ToList());
+				Func<Task> routeMiddlewarePipeline = GenerateMiddlewarePipeline(req, res, props, middlewares.ToList());
 
 				await routeMiddlewarePipeline();
 
@@ -144,20 +135,17 @@ public class HttpRouter
 		await next();
 	}
 
-	private async Task ParametrizedRouteMatching(HttpListenerRequest req,
-		HttpListenerResponse res, Hashtable props, Func<Task> next)
+	private async Task ParametrizedRouteMatching(HttpListenerRequest req, HttpListenerResponse res, Hashtable props, Func<Task> next)
 	{
 		foreach (var (method, path, middlewares) in routes)
 		{
 			NameValueCollection? parameters;
 
-			if (req.HttpMethod == method && (parameters =
-				ParseUrlParams(req.Url!.AbsolutePath, basePath + path)) != null) // *
+			if (req.HttpMethod == method && (parameters = ParseUrlParams(req.Url!.AbsolutePath, basePath + path)) != null) // *
 			{
 				props["req.params"] = parameters;
 
-				Func<Task> routeMiddlewarePipeline =
-					GenerateMiddlewarePipeline(req, res, props, middlewares.ToList());
+				Func<Task> routeMiddlewarePipeline = GenerateMiddlewarePipeline(req, res, props, middlewares.ToList());
 
 				await routeMiddlewarePipeline();
 
@@ -170,10 +158,8 @@ public class HttpRouter
 
 	public static NameValueCollection? ParseUrlParams(string uPath, string rPath)
 	{
-		string[] uParts = uPath.Trim('/').Split('/',
-			StringSplitOptions.RemoveEmptyEntries);
-		string[] rParts = rPath.Trim('/').Split('/',
-			StringSplitOptions.RemoveEmptyEntries);
+		string[] uParts = uPath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+		string[] rParts = rPath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
 
 		if (uParts.Length != rParts.Length) { return null; }
 

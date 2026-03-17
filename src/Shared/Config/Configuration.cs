@@ -7,7 +7,7 @@ using System.Globalization;
 public static class Configuration
 {
 	private static StringDictionary? appConfiguration;
-	// <-- Rest of the code below goes here.
+
 	private static StringDictionary GetAppConfiguration()
 	{
 		return appConfiguration == null ?
@@ -18,10 +18,8 @@ public static class Configuration
 	{
 		var cfg = new StringDictionary();
 		var basePath = Directory.GetCurrentDirectory();
-		var deploymentMode = Environment.GetEnvironmentVariable(
-			"DEPLOYMENT_MODE") ?? "development";
-		var paths = new string[] { "appsettings.cfg",
-			$"appsettings.{deploymentMode}.cfg" };
+		var deploymentMode = Environment.GetEnvironmentVariable("DEPLOYMENT_MODE") ?? "development";
+		var paths = new string[] { "appsettings.cfg", $"appsettings.{deploymentMode}.cfg" };
 
 		foreach (var path in paths)
 		{
@@ -65,8 +63,7 @@ public static class Configuration
 
 	public static string? Get(string key, string? val)
 	{
-		return Environment.GetEnvironmentVariable(key)
-		 ?? GetAppConfiguration()[key] ?? val;
+		return Environment.GetEnvironmentVariable(key) ?? GetAppConfiguration()[key] ?? val;
 	}
 
 	public static T Get<T>(string key)
@@ -76,8 +73,7 @@ public static class Configuration
 
 	public static T Get<T>(string key, T val)
 	{
-		string? value = Environment.GetEnvironmentVariable(key)
-			?? GetAppConfiguration()[key];
+		string? value = Environment.GetEnvironmentVariable(key) ?? GetAppConfiguration()[key];
 
 		if (string.IsNullOrWhiteSpace(value)) { return val; }
 
@@ -94,12 +90,10 @@ public static class Configuration
 
 			if (converter != null && converter.CanConvertFrom(typeof(string)))
 			{
-				return (T)converter.ConvertFromString(null,
-					CultureInfo.InvariantCulture, value)!;
+				return (T)converter.ConvertFromString(null, CultureInfo.InvariantCulture, value)!;
 			}
 
-			return (T)Convert.ChangeType(value, targetType,
-				CultureInfo.InvariantCulture);
+			return (T)Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture);
 		}
 		catch
 		{

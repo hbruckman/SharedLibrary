@@ -9,8 +9,7 @@ public class Result<T>
 	public T? Payload { get; }
 	public int StatusCode { get; }
 
-	public Result(Exception error, int statusCode =
-	 (int)HttpStatusCode.InternalServerError)
+	public Result(Exception error, int statusCode = (int)HttpStatusCode.InternalServerError)
 	{
 		IsError = true;
 		Error = error;

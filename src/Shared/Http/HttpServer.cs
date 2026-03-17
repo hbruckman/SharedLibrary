@@ -23,7 +23,9 @@ public abstract class HttpServer
 
 		Console.WriteLine("Server started at " + authority);
 	}
+
 	public abstract void Init();
+
 	public async Task Start()
 	{
 		server.Start();
@@ -35,12 +37,14 @@ public abstract class HttpServer
 			_ = router.HandleContextAsync(ctx);
 		}
 	}
+
 	public void Stop()
 	{
 		if (server.IsListening)
 		{
 			server.Stop();
 			server.Close();
+
 			Console.WriteLine("Server stopped.");
 		}
 	}
